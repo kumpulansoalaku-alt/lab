@@ -1,0 +1,1960 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Maya Interaktif - Barisan Geometri</title>
+    <meta name="description" content="Laboratorium Maya Interaktif Matematika Kelas XI SMA - Barisan Geometri Kurikulum Merdeka">
+    <meta name="author" content="Senior Edu Web Developer">
+    
+    <style>
+        /* ======================
+           CSS VARIABEL & TEMA
+        ====================== */
+        :root {
+            /* Warna Utama (Light Mode - Pink Theme) */
+            --primary: #db2777; /* Pink 600 */
+            --primary-hover: #be185d; /* Pink 700 */
+            --primary-light: #fce7f3; /* Pink 100 */
+            --secondary: #ec4899; /* Pink 500 */
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #0ea5e9;
+            
+            /* Warna Latar & Teks (Efek Glassmorphism Pink Soft) */
+            --bg-body: transparent; 
+            --bg-surface: rgba(255, 240, 245, 0.85); /* Lavender Blush / Soft Pink */
+            --bg-sidebar: rgba(253, 242, 248, 0.9); /* Latar Sidebar Soft Pink */
+            --text-main: #4a044e; /* Teks utama fuchsia gelap agar kontras */
+            --text-muted: #831843; /* Teks sekunder */
+            --border-color: rgba(244, 114, 182, 0.4); /* Border pink transparan */
+            
+            /* Efek & Ukuran */
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 1rem;
+            --radius-xl: 1.5rem;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --glass-bg: rgba(253, 242, 248, 0.85);
+            
+            /* Font (Bawaan Sistem) */
+            --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            
+            /* Transisi */
+            --transition: all 0.3s ease;
+        }
+
+        /* Dark Mode Variables (Dark Magenta/Plum) */
+        [data-theme="dark"] {
+            --bg-body: transparent;
+            --bg-surface: rgba(74, 4, 78, 0.75); /* Dark Fuchsia Glass */
+            --bg-sidebar: rgba(74, 4, 78, 0.85);
+            --text-main: #fdf2f8; /* Teks Pink Sangat Terang */
+            --text-muted: #fbcfe8; /* Teks Pink Medium */
+            --border-color: rgba(219, 39, 119, 0.5); /* Border Pink Gelap */
+            --glass-bg: rgba(74, 4, 78, 0.8);
+            --primary-light: #831843; /* Hover menu pink gelap */
+        }
+
+        /* ======================
+           RESETS & BASE
+        ====================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-family);
+        }
+        
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: var(--transition);
+        }
+
+        a { text-decoration: none; color: inherit; }
+        ul { list-style: none; }
+        button, input, select { font-family: inherit; outline: none; border: none; }
+        button { cursor: pointer; transition: var(--transition); }
+        
+        /* ======================
+           LAYOUT STRUKTUR
+        ====================== */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-sidebar);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            z-index: 40;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: bold;
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 0;
+        }
+
+        .menu-item {
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            border-right: 4px solid var(--primary);
+        }
+
+        .menu-item svg { width: 20px; height: 20px; fill: currentColor; }
+
+        /* Main Content Area */
+        .main-wrapper {
+            flex: 1;
+            margin-left: 260px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: var(--transition);
+        }
+
+        /* Header Utama */
+        .header {
+            height: 70px;
+            background-color: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 1rem; }
+        .header-right { display: flex; align-items: center; gap: 1rem; }
+
+        .btn-icon {
+            background: transparent;
+            color: var(--text-main);
+            padding: 0.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-icon:hover { background-color: var(--border-color); }
+        .btn-icon svg { width: 24px; height: 24px; fill: currentColor; }
+
+        /* Container Konten */
+        .content {
+            flex: 1;
+            padding: 2rem;
+            position: relative;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 1.5rem;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            background-color: var(--bg-surface);
+        }
+
+        /* Views (Halaman) */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+        .view-section.active { display: block; }
+
+        /* ======================
+           KOMPONEN UI
+        ====================== */
+        
+        /* Typography */
+        h1, h2, h3, h4 { color: var(--text-main); margin-bottom: 1rem; }
+        .text-primary { color: var(--primary); }
+        .text-muted { color: var(--text-muted); }
+        p { margin-bottom: 1rem; }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 1rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:hover { background-color: var(--primary-hover); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .btn-outline { background-color: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background-color: var(--primary-light); }
+        .btn-success { background-color: var(--success); color: white; }
+        .btn-success:hover { background-color: #059669; }
+        .btn-block { width: 100%; }
+
+        /* Ripple Effect */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple-anim 0.6s linear;
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Cards */
+        .card {
+            background-color: var(--bg-surface);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+        }
+        .card:hover { box-shadow: var(--shadow-md); }
+
+        /* Grid System */
+        .grid { display: grid; gap: 1.5rem; }
+        .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+        .grid-3 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+
+        /* Form & Inputs */
+        .form-group { margin-bottom: 1.5rem; }
+        .form-label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-main); }
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            transition: var(--transition);
+        }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+
+        /* Sliders */
+        .slider-container { margin-bottom: 1.5rem; }
+        .slider-header { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+        .range-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--border-color);
+            outline: none;
+        }
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.1s;
+        }
+        .range-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+        /* Progress Bar */
+        .progress-wrapper { width: 100%; background-color: var(--border-color); border-radius: 999px; height: 8px; overflow: hidden; margin: 1rem 0; }
+        .progress-bar { height: 100%; background-color: var(--primary); width: 0%; transition: width 0.5s ease; }
+
+        /* Math Display */
+        .math-box {
+            background-color: var(--primary-light);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--primary);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.25rem;
+            text-align: center;
+            overflow-x: auto;
+            color: var(--text-main);
+            margin: 1rem 0;
+        }
+        
+        .sequence-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 1rem 0;
+            justify-content: center;
+        }
+        .seq-term {
+            background-color: var(--bg-surface);
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            font-weight: bold;
+            font-size: 1.2rem;
+            animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Canvas */
+        .canvas-container {
+            width: 100%;
+            height: 400px;
+            background-color: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+        canvas { width: 100%; height: 100%; display: block; }
+
+        /* ======================
+           KOMPONEN KHUSUS
+        ====================== */
+        
+        /* Modal / Dialog */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background-color: var(--bg-surface);
+            padding: 2rem;
+            border-radius: var(--radius-xl);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.3s ease;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 1rem; right: 1rem;
+            background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);
+        }
+
+        /* AI Tutor FAB & Chat */
+        .tutor-fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            z-index: 50;
+            transition: var(--transition);
+            animation: float 3s ease-in-out infinite;
+        }
+        .tutor-fab:hover { transform: scale(1.1); background-color: var(--primary-hover); }
+        .tutor-panel {
+            position: fixed;
+            bottom: 6rem;
+            right: 2rem;
+            width: 320px;
+            background-color: var(--bg-surface);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            z-index: 50;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+        .tutor-panel.active { display: flex; }
+        .tutor-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .tutor-body { padding: 1rem; max-height: 300px; overflow-y: auto; font-size: 0.9rem; }
+        .tutor-msg { background-color: var(--primary-light); color: var(--text-main); padding: 0.75rem; border-radius: var(--radius-md); margin-bottom: 0.5rem; border-bottom-left-radius: 0; }
+        
+        /* Toast Notifications */
+        .toast-container { position: fixed; top: 1rem; right: 1rem; z-index: 1000; display: flex; flex-direction: column; gap: 0.5rem; }
+        .toast {
+            min-width: 250px;
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            background-color: var(--bg-surface);
+            color: var(--text-main);
+            box-shadow: var(--shadow-lg);
+            border-left: 4px solid var(--primary);
+            animation: slideInRight 0.3s ease forwards;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.fadeOut { animation: slideOutRight 0.3s ease forwards; }
+
+        /* Game UI */
+        .game-room {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .door-container {
+            width: 150px;
+            height: 250px;
+            background-color: #475569;
+            border: 4px solid #334155;
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            margin: 2rem auto;
+            perspective: 1000px;
+        }
+        .door {
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="%238b4513"/><rect x="10" y="10" width="80" height="40" fill="%23a0522d"/><rect x="10" y="60" width="80" height="30" fill="%23a0522d"/><circle cx="85" cy="50" r="5" fill="%23ffd700"/></svg>');
+            background-size: cover;
+            transform-origin: left;
+            transition: transform 1.5s ease;
+            position: absolute;
+            top: 0; left: 0;
+            border-radius: 4px 4px 0 0;
+            box-shadow: inset -5px 0 10px rgba(0,0,0,0.5);
+        }
+        .door.open { transform: rotateY(-105deg); }
+        .game-hud { display: flex; justify-content: space-between; width: 100%; padding: 1rem; position: absolute; top: 0; background: rgba(0,0,0,0.3); }
+
+        /* Soal / Latihan Options */
+        .option-btn {
+            display: block; width: 100%; text-align: left; padding: 1rem;
+            margin-bottom: 0.75rem; border: 2px solid var(--border-color);
+            background-color: var(--bg-surface); color: var(--text-main);
+            border-radius: var(--radius-md); transition: var(--transition);
+        }
+        .option-btn:hover:not(:disabled) { border-color: var(--primary); background-color: var(--primary-light); }
+        .option-btn.correct { border-color: var(--success); background-color: rgba(16, 185, 129, 0.1); color: var(--success); font-weight: bold; }
+        .option-btn.wrong { border-color: var(--danger); background-color: rgba(239, 68, 68, 0.1); color: var(--danger); }
+
+        /* Sertifikat / Print Media */
+        .certificate {
+            background-color: white; color: black;
+            padding: 3rem; border: 15px solid var(--primary);
+            border-radius: 10px; text-align: center;
+            position: relative; max-width: 800px; margin: 0 auto;
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(219, 39, 119, 0.05) 20px, rgba(219, 39, 119, 0.05) 40px);
+        }
+        .cert-header { font-size: 2.5rem; color: #831843; margin-bottom: 1rem; font-family: Georgia, serif; text-transform: uppercase; }
+        .cert-body { font-size: 1.25rem; margin-bottom: 2rem; }
+        .cert-name { font-size: 2rem; font-weight: bold; text-decoration: underline; margin: 1.5rem 0; color: #000; }
+        .cert-footer { display: flex; justify-content: space-between; margin-top: 4rem; padding-top: 1rem; border-top: 2px solid #ccc; }
+        .stamp { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); width: 100px; height: 100px; border: 4px solid #ef4444; color: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; transform: translateX(-50%) rotate(-15deg); opacity: 0.8; }
+
+        @media print {
+            body * { visibility: hidden; }
+            #view-sertifikat, #view-sertifikat * { visibility: visible; }
+            #view-sertifikat { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; }
+            .sidebar, .header, .tutor-fab, .no-print { display: none !important; }
+            body { background: white; }
+            .certificate { border: 10px solid #2563eb; width: 100%; max-width: 100%; height: 95vh; }
+        }
+
+        /* ======================
+           ANIMASI & RESPONSIVE
+        ====================== */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+        @keyframes bounceIn { 0% { transform: scale(0.3); opacity: 0; } 50% { transform: scale(1.05); opacity: 1; } 70% { transform: scale(0.9); } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+        
+        /* Mobile Hamburger */
+        .menu-toggle { display: none; }
+        .overlay { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.5); z-index: 35; }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-wrapper { margin-left: 0; }
+            .menu-toggle { display: block; }
+            .overlay.active { display: block; }
+            .header { padding: 0 1rem; }
+            .content { padding: 1rem; }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .cert-header { font-size: 1.8rem; }
+            .cert-name { font-size: 1.5rem; }
+            .certificate { padding: 1.5rem; }
+            .cert-footer { flex-direction: column; gap: 1rem; text-align: center; }
+            .stamp { bottom: 10px; }
+        }
+        
+        /* Accessibility */
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container" id="app">
+        
+        <!-- Sidebar Menu -->
+        <aside class="sidebar" id="sidebar" aria-label="Navigasi Utama">
+            <div class="sidebar-header">
+                <!-- SVG Icon Math -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                LabMaya Math
+            </div>
+            <ul class="sidebar-menu">
+                <li class="menu-item active" data-target="beranda"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg> Beranda</li>
+                <li class="menu-item" data-target="materi"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg> Materi</li>
+                <li class="menu-item" data-target="lab"><svg viewBox="0 0 24 24"><path d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg> Lab Maya & Grafik</li>
+                <li class="menu-item" data-target="eksplorasi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> Eksplorasi</li>
+                <li class="menu-item" data-target="latihan"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> Latihan Soal</li>
+                <li class="menu-item" data-target="game"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"></rect><path d="M12 12h.01M16 12h.01M8 12h.01M6 12h.01"></path></svg> Game Edukasi</li>
+                <li class="menu-item" data-target="evaluasi"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Evaluasi</li>
+                <li class="menu-item" data-target="sertifikat"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg> Sertifikat</li>
+                <li class="menu-item" data-target="tentang"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> Tentang</li>
+                <li class="menu-item" data-target="profil"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Profil Pengembang</li>
+            </ul>
+        </aside>
+
+        <!-- Overlay Mobile -->
+        <div class="overlay" id="overlay"></div>
+
+        <!-- Main Wrapper -->
+        <main class="main-wrapper">
+            
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="btn-icon menu-toggle" id="btn-menu" aria-label="Buka Menu">
+                        <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </button>
+                    <h2 id="page-title" class="text-primary">Beranda</h2>
+                </div>
+                <div class="header-right">
+                    <span id="user-greeting" class="text-muted" style="display:none; font-weight:500;">Halo, Siswa</span>
+                    <button class="btn-icon" id="btn-theme" aria-label="Ganti Tema">
+                        <svg id="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content Area (Semua Halaman) -->
+            <div class="content" id="main-content">
+                
+                <!-- ====================== BERANDA ====================== -->
+                <section id="view-beranda" class="view-section active">
+                    <div class="card text-center" style="padding: 4rem 2rem;">
+                        <h1 style="font-size: 2.5rem; color: var(--primary);">Lab Maya Interaktif</h1>
+                        <h2 class="text-muted">Barisan Geometri Kelas XI SMA</h2>
+                        <p style="font-size: 1.1rem; max-width: 600px; margin: 1.5rem auto;">
+                            Selamat datang di Laboratorium Maya Matematika Kurikulum Merdeka. 
+                            Temukan kemudahan belajar Barisan Geometri melalui simulasi interaktif, visualisasi grafik, dan game edukasi.
+                        </p>
+                        
+                        <div id="login-section" style="max-width: 400px; margin: 2rem auto;">
+                            <div class="form-group">
+                                <label for="student-name" class="form-label">Masukkan Nama Anda untuk Memulai</label>
+                                <input type="text" id="student-name" class="form-control" placeholder="Nama Lengkap...">
+                            </div>
+                            <button id="btn-start" class="btn btn-primary btn-block">Mulai Belajar</button>
+                        </div>
+
+                        <div id="welcome-back-section" style="display:none; margin-top: 2rem;">
+                            <button id="btn-continue" class="btn btn-success" onclick="app.navigate('materi')">Lanjutkan Belajar</button>
+                            <button id="btn-reset" class="btn btn-outline" style="margin-left: 1rem;">Reset Data</button>
+                        </div>
+                        
+                        <div class="grid grid-3" style="margin-top: 4rem; text-align: left;">
+                            <div class="card">
+                                <h3 class="text-primary">🧪 Eksplorasi</h3>
+                                <p class="text-muted">Ubah variabel dan lihat efeknya secara realtime pada barisan dan grafik.</p>
+                            </div>
+                            <div class="card">
+                                <h3 class="text-primary">🎮 Game Edukasi</h3>
+                                <p class="text-muted">Pecahkan teka-teki Escape Room menggunakan konsep barisan geometri.</p>
+                            </div>
+                            <div class="card">
+                                <h3 class="text-primary">🏆 Sertifikat</h3>
+                                <p class="text-muted">Kerjakan evaluasi akhir dan dapatkan sertifikat pencapaianmu.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ====================== MATERI ====================== -->
+                <section id="view-materi" class="view-section">
+                    <div class="card">
+                        <h2>Apa itu Barisan Geometri?</h2>
+                        <p>Barisan geometri adalah barisan bilangan yang nilai setiap sukunya didapatkan dari suku sebelumnya melalui <strong>perkalian</strong> dengan suatu bilangan tetap. Bilangan tetap tersebut disebut <strong>rasio (r)</strong>.</p>
+                        
+                        <div class="math-box">
+                            Contoh: 2, 6, 18, 54, 162, ...
+                        </div>
+                        <p>Pada barisan di atas, suku pertama adalah 2. Suku kedua adalah 6 (didapat dari 2 × 3). Suku ketiga adalah 18 (didapat dari 6 × 3). Maka, rasionya adalah 3.</p>
+                    </div>
+
+                    <div class="card">
+                        <h2>Rumus Utama</h2>
+                        <div class="grid grid-2">
+                            <div>
+                                <h3>Suku ke-n (U<sub>n</sub>)</h3>
+                                <div class="math-box">
+                                    U<sub>n</sub> = a · r<sup>n-1</sup>
+                                </div>
+                                <ul style="list-style-type: disc; margin-left: 2rem; color: var(--text-muted);">
+                                    <li><strong>a</strong> = suku pertama (U<sub>1</sub>)</li>
+                                    <li><strong>r</strong> = rasio (U<sub>n</sub> / U<sub>n-1</sub>)</li>
+                                    <li><strong>n</strong> = banyak suku</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3>Menentukan Rasio (r)</h3>
+                                <div class="math-box">
+                                    r = U<sub>n</sub> / U<sub>n-1</sub>
+                                </div>
+                                <p class="text-muted" style="margin-top: 1rem;">Rasio dapat dicari dengan membagi suku ke-2 dengan suku ke-1, suku ke-3 dengan suku ke-2, dan seterusnya.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: right;">
+                        <button class="btn btn-primary" onclick="app.navigate('lab')">Lanjut ke Lab Maya &rarr;</button>
+                    </div>
+                </section>
+
+                <!-- ====================== LAB MAYA ====================== -->
+                <section id="view-lab" class="view-section">
+                    <div class="grid grid-2">
+                        <!-- Panel Kontrol (Kiri) -->
+                        <div class="card">
+                            <h2 class="text-primary">Panel Kontrol</h2>
+                            <p class="text-muted" style="margin-bottom: 1.5rem;">Geser slider untuk mengubah variabel barisan geometri.</p>
+                            
+                            <div class="slider-container">
+                                <div class="slider-header">
+                                    <label class="form-label">Suku Pertama (a)</label>
+                                    <span id="val-a" class="text-primary" style="font-weight: bold;">2</span>
+                                </div>
+                                <input type="range" id="slider-a" class="range-slider" min="1" max="100" value="2" step="1">
+                            </div>
+
+                            <div class="slider-container">
+                                <div class="slider-header">
+                                    <label class="form-label">Rasio (r)</label>
+                                    <span id="val-r" class="text-primary" style="font-weight: bold;">3</span>
+                                </div>
+                                <input type="range" id="slider-r" class="range-slider" min="0.5" max="5" value="3" step="0.5">
+                            </div>
+
+                            <div class="slider-container">
+                                <div class="slider-header">
+                                    <label class="form-label">Jumlah Suku (n)</label>
+                                    <span id="val-n" class="text-primary" style="font-weight: bold;">5</span>
+                                </div>
+                                <input type="range" id="slider-n" class="range-slider" min="3" max="20" value="5" step="1">
+                            </div>
+                            
+                            <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid var(--border-color);">
+                            
+                            <h3>Informasi Terkini</h3>
+                            <div class="math-box" style="font-size: 1rem; text-align: left;">
+                                Rumus: U<sub>n</sub> = <span id="info-a">2</span> × <span id="info-r">3</span><sup>n-1</sup><br>
+                                Nilai U<sub><span id="info-n-idx">5</span></sub> = <strong id="info-un" class="text-primary" style="font-size:1.2rem">162</strong>
+                            </div>
+                        </div>
+
+                        <!-- Visualisasi (Kanan) -->
+                        <div>
+                            <div class="card">
+                                <h3>Barisan Terbentuk</h3>
+                                <div id="sequence-container" class="sequence-display">
+                                    <!-- Suku di-generate via JS -->
+                                </div>
+                            </div>
+                            
+                            <div class="card">
+                                <h3>Grafik Pertumbuhan</h3>
+                                <div class="canvas-container">
+                                    <canvas id="geoCanvas"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ====================== EKSPLORASI ====================== -->
+                <section id="view-eksplorasi" class="view-section">
+                    <div class="card">
+                        <h2 class="text-primary">Eksperimen Karakteristik Rasio (r)</h2>
+                        <p class="text-muted">Coba klik tombol di bawah ini untuk melihat bagaimana nilai rasio mempengaruhi bentuk barisan geometri. Perhatikan grafiknya di Lab Maya!</p>
+                        
+                        <div class="grid grid-3" style="margin-top: 1.5rem;">
+                            <div class="card" style="text-align: center;">
+                                <h3>r &lt; 1</h3>
+                                <p class="text-muted" style="font-size: 0.9rem;">(Barisan Konvergen / Mengecil)</p>
+                                <button class="btn btn-outline" style="margin-top: 1rem;" onclick="app.setEksperimen(100, 0.5, 6)">Coba: a=100, r=0.5</button>
+                            </div>
+                            <div class="card" style="text-align: center;">
+                                <h3>r = 1</h3>
+                                <p class="text-muted" style="font-size: 0.9rem;">(Barisan Stasioner / Tetap)</p>
+                                <button class="btn btn-outline" style="margin-top: 1rem;" onclick="app.setEksperimen(10, 1, 6)">Coba: a=10, r=1</button>
+                            </div>
+                            <div class="card" style="text-align: center;">
+                                <h3>r &gt; 1</h3>
+                                <p class="text-muted" style="font-size: 0.9rem;">(Barisan Divergen / Membesar)</p>
+                                <button class="btn btn-outline" style="margin-top: 1rem;" onclick="app.setEksperimen(2, 3, 6)">Coba: a=2, r=3</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card" id="eksperimen-result" style="display: none;">
+                        <h3>Kesimpulan Otomatis:</h3>
+                        <p id="eksperimen-text" class="text-primary" style="font-size: 1.2rem; font-weight: bold;"></p>
+                        <button class="btn btn-primary mt-3" style="margin-top:1rem" onclick="app.navigate('lab')">Lihat di Grafik</button>
+                    </div>
+                </section>
+
+                <!-- ====================== LATIHAN ====================== -->
+                <section id="view-latihan" class="view-section">
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h2>Latihan Soal (Termasuk HOTS)</h2>
+                            <span class="text-muted">Soal <span id="lat-current">1</span> / <span id="lat-total">10</span></span>
+                        </div>
+                        <div class="progress-wrapper"><div class="progress-bar" id="lat-progress"></div></div>
+                        
+                        <div id="lat-question-container" style="margin-top: 2rem;">
+                            <!-- Pertanyaan -->
+                            <h3 id="lat-q-text" style="line-height: 1.5; margin-bottom: 1.5rem;">Memuat soal...</h3>
+                            
+                            <!-- Pilihan Ganda -->
+                            <div id="lat-options-container"></div>
+                        </div>
+
+                        <div id="lat-feedback" class="card" style="display:none; margin-top:1.5rem; background-color: var(--primary-light);">
+                            <h4 id="lat-feedback-title"></h4>
+                            <p id="lat-feedback-text"></p>
+                            <button class="btn btn-primary" id="btn-lat-next" style="margin-top: 1rem;">Soal Selanjutnya</button>
+                        </div>
+                        
+                        <div id="lat-result" class="card text-center" style="display:none; padding: 3rem;">
+                            <h2>Latihan Selesai!</h2>
+                            <h1 class="text-primary" style="font-size: 4rem; margin: 1rem 0;" id="lat-score">100</h1>
+                            <p class="text-muted">Bagus sekali! Terus tingkatkan pemahamanmu.</p>
+                            <button class="btn btn-outline" onclick="app.quizEngine.start('latihan')">Ulangi Latihan</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ====================== EVALUASI ====================== -->
+                <section id="view-evaluasi" class="view-section">
+                    <div id="eval-intro" class="card text-center" style="padding: 3rem;">
+                        <h2>Ujian Evaluasi Akhir</h2>
+                        <p class="text-muted">Uji pemahamanmu tentang Barisan Geometri. Terdapat 25 soal acak dengan waktu pengerjaan.</p>
+                        <ul style="text-align: left; max-width: 400px; margin: 1.5rem auto; color: var(--text-muted); list-style: disc; padding-left: 2rem;">
+                            <li>Pilih jawaban yang paling tepat.</li>
+                            <li>Dapatkan nilai > 80 untuk membuka Sertifikat.</li>
+                            <li>Waktu akan dicatat.</li>
+                        </ul>
+                        <button class="btn btn-primary" onclick="app.quizEngine.start('evaluasi')">Mulai Evaluasi Sekarang</button>
+                    </div>
+
+                    <div id="eval-test" style="display:none;">
+                        <div class="card">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <h2 class="text-danger">Waktu: <span id="eval-timer">00:00</span></h2>
+                                <span class="text-muted">Soal <span id="eval-current">1</span> / <span id="eval-total">25</span></span>
+                            </div>
+                            <div class="progress-wrapper"><div class="progress-bar" id="eval-progress"></div></div>
+                            
+                            <div style="margin-top: 2rem;">
+                                <h3 id="eval-q-text" style="line-height: 1.5; margin-bottom: 1.5rem;">Memuat soal...</h3>
+                                <div id="eval-options-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="eval-result" class="card text-center" style="display:none; padding: 3rem;">
+                        <h2>Hasil Evaluasi</h2>
+                        <h1 class="" style="font-size: 4rem; margin: 1rem 0;" id="eval-score">0</h1>
+                        <p id="eval-message" class="text-muted"></p>
+                        <div style="margin-top: 2rem; display: flex; justify-content: center; gap: 1rem;">
+                            <button class="btn btn-outline" onclick="app.quizEngine.start('evaluasi')">Coba Lagi</button>
+                            <button class="btn btn-success" id="btn-klaim-sertifikat" style="display:none;" onclick="app.navigate('sertifikat')">Klaim Sertifikat 🏆</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ====================== GAME EDUKASI ====================== -->
+                <section id="view-game" class="view-section">
+                    <div class="game-room">
+                        <div class="game-hud">
+                            <span>Level: <strong id="game-level">1</strong>/5</span>
+                            <span>Skor: <strong id="game-score">0</strong></span>
+                        </div>
+                        
+                        <h2 style="margin-top: 2rem; color: #f8fafc; font-size: 2rem;">Escape Geometry Lab</h2>
+                        <p style="color: #94a3b8; max-width: 500px; margin-bottom: 1rem;">Jawab 3 pertanyaan berturut-turut dengan benar untuk membuka pintu lab dan melarikan diri ke level berikutnya!</p>
+                        
+                        <div class="door-container">
+                            <div class="door" id="game-door"></div>
+                        </div>
+
+                        <div id="game-q-container" style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 8px; width: 100%; max-width: 600px; margin-top: 1rem; backdrop-filter: blur(5px);">
+                            <h3 id="game-q-text" style="margin-bottom: 1rem;">Suku selanjutnya dari 2, 4, 8, ... adalah?</h3>
+                            <div class="grid grid-2" id="game-options">
+                                <!-- Pilihan Game -->
+                            </div>
+                        </div>
+                        
+                        <div id="game-win" style="display:none; margin-top: 2rem;">
+                            <h2 style="color: #10b981;">🎉 Level Selesai!</h2>
+                            <button class="btn btn-primary mt-3" onclick="app.gameEngine.nextLevel()" style="margin-top:1rem;">Lanjut ke Ruangan Berikutnya</button>
+                        </div>
+                        <div id="game-over-screen" style="display:none; margin-top: 2rem; width:100%;">
+                            <h2 style="color: #10b981; font-size:2.5rem;">🎉 SELAMAT! ANDA BERHASIL LOLOS!</h2>
+                            <p>Anda telah menguasai barisan geometri.</p>
+                            <button class="btn btn-primary" onclick="app.gameEngine.init()" style="margin-top:1rem;">Main Lagi</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ====================== SERTIFIKAT ====================== -->
+                <section id="view-sertifikat" class="view-section">
+                    <div id="cert-locked" class="card text-center" style="padding: 4rem 2rem;">
+                        <span style="font-size: 4rem;">🔒</span>
+                        <h2 style="margin-top: 1rem;">Sertifikat Terkunci</h2>
+                        <p class="text-muted">Kerjakan bagian <strong>Evaluasi</strong> dan dapatkan nilai minimal <strong>80</strong> untuk membuka sertifikat.</p>
+                        <button class="btn btn-primary" style="margin-top: 1rem;" onclick="app.navigate('evaluasi')">Ke Halaman Evaluasi</button>
+                    </div>
+
+                    <div id="cert-unlocked" style="display:none;">
+                        <div class="no-print" style="margin-bottom: 1rem; text-align: right;">
+                            <button class="btn btn-success" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
+                        </div>
+                        
+                        <div class="certificate">
+                            <div class="cert-header">Sertifikat Penghargaan</div>
+                            <div class="cert-body">
+                                Diberikan kepada:<br>
+                                <div class="cert-name" id="cert-student-name">Nama Siswa</div>
+                                Atas keberhasilannya menyelesaikan:<br>
+                                <strong>Laboratorium Maya Interaktif Barisan Geometri</strong><br>
+                                Kurikulum Merdeka Kelas XI SMA<br>
+                                dengan Nilai Evaluasi:<br>
+                                <span id="cert-student-score" style="font-size: 2.5rem; font-weight: bold; color: #2563eb;">100</span>
+                            </div>
+                            <div class="cert-footer">
+                                <div>
+                                    Dikeluarkan pada:<br>
+                                    <strong id="cert-date">10 Agustus 2026</strong>
+                                </div>
+                                <div>
+                                    Instruktur / Sistem AI<br>
+                                    <div style="font-family: 'Brush Script MT', cursive; font-size: 2rem; margin-top:0.5rem; color:#1e3a8a;">LabMaya Engine</div>
+                                </div>
+                            </div>
+                            <div class="stamp">LULUS</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ====================== TENTANG ====================== -->
+                <section id="view-tentang" class="view-section">
+                    <div class="card">
+                        <h2>Tentang Aplikasi</h2>
+                        <p>Aplikasi <strong>Lab Maya Interaktif - Barisan Geometri</strong> ini dikembangkan untuk memfasilitasi pembelajaran matematika sesuai dengan Kurikulum Merdeka untuk siswa Kelas XI SMA.</p>
+                        <p>Aplikasi ini dirancang menggunakan teknologi HTML5 murni tanpa framework eksternal, sehingga dapat dijalankan 100% offline dan ringan di berbagai perangkat (Desktop, Tablet, maupun Smartphone).</p>
+                        <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid var(--border-color);">
+                        <h3>Fitur Utama</h3>
+                        <ul style="list-style: disc; margin-left: 2rem; color: var(--text-muted);">
+                            <li>Simulasi Visual Interaktif dengan HTML5 Canvas</li>
+                            <li>Engine Kuis dengan dukungan soal HOTS (Higher Order Thinking Skills)</li>
+                            <li>Game Edukasi "Escape Room"</li>
+                            <li>Generasi Sertifikat Digital secara otomatis</li>
+                            <li>AI Tutor (Sistem pemberi petunjuk dinamis)</li>
+                            <li>Dukungan Dark Mode dan penyimpanan lokal (Offline Data)</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- ====================== PROFIL ====================== -->
+                <section id="view-profil" class="view-section">
+                    <div class="card text-center" style="padding: 3rem 2rem; max-width: 600px; margin: 0 auto;">
+                        <div style="width: 150px; height: 150px; margin: 0 auto 1.5rem auto; border-radius: 50%; overflow: hidden; border: 4px solid var(--primary); box-shadow: var(--shadow-md);">
+                            <!-- Menggunakan ekstensi .jpeg dan mengubah warna placeholder ke pink (db2777) -->
+                            <img src="assets/images/profil.jpeg" alt="Foto Profil Susi Maelidaryani" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://placehold.co/150x150/db2777/ffffff?text=SM'">
+                        </div>
+                        <h2 class="text-primary" style="margin-bottom: 0.5rem;">Susi Maelidaryani, M.Pd.</h2>
+                        <p class="text-muted" style="margin-bottom: 1rem; font-weight: 500;">Guru Matematika | SMAN 7 Kota Serang</p>
+                        <p style="margin-bottom: 1.5rem; color: var(--text-main);">
+                            Pengembang media pembelajaran interaktif untuk mendukung Kurikulum Merdeka. Memiliki minat pada integrasi teknologi dalam pendidikan, khususnya pemanfaatan alat peraga dan media digital untuk memperkuat konsep matematika (seperti Pythagoras dan Geometri).
+                        </p>
+                        <a href="https://instagram.com/susimaelidaryani" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                            @susimaelidaryani
+                        </a>
+                    </div>
+                </section>
+
+            </div>
+            
+            <!-- Footer -->
+            <footer class="footer">
+                &copy; <span id="current-year"></span> Lab Maya Interaktif Matematika | Versi 1.0 | Offline Mode
+            </footer>
+        </main>
+    </div>
+
+    <!-- AI Tutor FAB & Panel -->
+    <div class="tutor-fab" id="btn-tutor" aria-label="Tanya Tutor AI">
+        <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73A2 2 0 0 1 12 2z"></path><line x1="9" y1="13" x2="9.01" y2="13"></line><line x1="15" y1="13" x2="15.01" y2="13"></line></svg>
+    </div>
+    <div class="tutor-panel" id="tutor-panel">
+        <div class="tutor-header">
+            <span>🤖 AI Tutor</span>
+            <button class="btn-icon" id="btn-close-tutor" style="color:white; padding:0;"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        </div>
+        <div class="tutor-body" id="tutor-chat">
+            <div class="tutor-msg">Halo! Saya asisten belajarmu. Ada yang bisa saya bantu di halaman ini?</div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script>
+        /* ======================
+           DATABASE SOAL
+        ====================== */
+        const questionBank = [
+            // Level Mudah / Konsep Dasar
+            { q: "Apa yang dimaksud dengan rasio pada barisan geometri?", options: ["Selisih antara dua suku berurutan", "Jumlah dari dua suku berurutan", "Perbandingan antara dua suku yang berurutan", "Hasil kali semua suku"], ans: 2, hint: "Ingat kata kunci 'Geometri' berkaitan dengan pembagian/perkalian." },
+            { q: "Diketahui barisan geometri: 3, 6, 12, 24, ... Berapakah rasionya?", options: ["2", "3", "4", "6"], ans: 0, hint: "Bagi suku kedua (6) dengan suku pertama (3)." },
+            { q: "Rumus umum mencari suku ke-n pada barisan geometri adalah...", options: ["Un = a + (n-1)b", "Un = a * r^(n-1)", "Un = a * r^n", "Un = n/2 (2a + (n-1)b)"], ans: 1, hint: "Suku pertama dikali rasio pangkat n kurang 1." },
+            { q: "Suku pertama (a) dari barisan 5, 15, 45, ... adalah?", options: ["3", "5", "10", "15"], ans: 1, hint: "Suku pertama adalah angka yang terletak paling awal." },
+            { q: "Jika a = 2 dan r = 3, berapakah U3?", options: ["12", "18", "24", "36"], ans: 1, hint: "U3 = 2 * (3^2) = 2 * 9." },
+            
+            // Level Menengah
+            { q: "Diketahui barisan 100, 50, 25, 12.5, ... Berapakah rasionya?", options: ["2", "0.5", "-50", "0.25"], ans: 1, hint: "Barisan ini mengecil, jadi rasio berupa pecahan kurang dari 1. 50/100 = ?" },
+            { q: "Suatu barisan geometri mempunyai suku pertama 4 dan suku ke-4 adalah 108. Rasionya adalah...", options: ["2", "3", "4", "5"], ans: 1, hint: "U4 = a*r^3. 108 = 4*r^3. r^3 = 27." },
+            { q: "Suku ke-5 dari barisan 1, 2, 4, 8, ... adalah?", options: ["10", "12", "16", "32"], ans: 2, hint: "Lanjutkan perkalian 2: 8 * 2 = ?" },
+            { q: "Jika rasio r > 1, maka sifat barisan tersebut adalah?", options: ["Mengecil (Konvergen)", "Tetap", "Membesar (Divergen)", "Bolak-balik negatif positif"], ans: 2, hint: "Jika dikali angka lebih besar dari 1, nilainya akan terus bertambah." },
+            { q: "Diketahui U2 = 6 dan U4 = 54 pada barisan geometri bernilai positif. Suku pertama (a) adalah...", options: ["1", "2", "3", "4"], ans: 1, hint: "U4/U2 = r^2. 54/6 = 9. Jadi r=3. U2 = a*r -> 6 = a*3." },
+
+            // Level HOTS / Kontekstual
+            { q: "[HOTS] Sebuah koloni bakteri membelah diri menjadi dua setiap 30 menit. Jika pada pukul 08.00 terdapat 10 bakteri, berapakah jumlah bakteri pada pukul 10.00?", options: ["80", "160", "320", "640"], ans: 1, hint: "Dari 08.00 ke 10.00 ada 2 jam (120 menit). Banyak pembelahan n = 120/30 = 4 kali. Total suku adalah awal + 4 = 5. U5 = 10 * 2^4 = 160." },
+            { q: "[HOTS] Amira menabung di bank dengan sistem bunga majemuk 10% per tahun. Jika modal awalnya Rp 1.000.000, jumlah tabungannya setelah 2 tahun adalah...", options: ["Rp 1.100.000", "Rp 1.200.000", "Rp 1.210.000", "Rp 1.331.000"], ans: 2, hint: "Bunga majemuk adalah barisan geometri. a = 1.000.000, r = 1,1. Tabungan setelah 2 tahun = modal akhir tahun ke-2 (U3 jika awal adalah U1). 1.000.000 * (1,1)^2 = 1.210.000." },
+            { q: "[HOTS] Seutas tali dipotong menjadi 4 bagian sedemikian rupa sehingga panjang potongan-potongannya membentuk barisan geometri. Jika potongan terpendek 2 cm dan terpanjang 54 cm, rasio potongannya adalah?", options: ["2", "3", "4", "5"], ans: 1, hint: "a = 2, U4 = 54. U4 = a * r^3 -> 54 = 2 * r^3 -> r^3 = 27." },
+            { q: "[HOTS] Penyusutan harga mobil tiap tahun sebesar 20% dari harga tahun sebelumnya. Jika harga belinya Rp 200 juta, berapakah harga di akhir tahun ke-2?", options: ["Rp 160 juta", "Rp 128 juta", "Rp 120 juta", "Rp 100 juta"], ans: 1, hint: "Penyusutan 20% berarti sisa harga adalah 80% (r = 0,8). Akhir tahun ke-2 = awal * r^2. 200 * (0.8)^2 = 128." },
+            { q: "[HOTS] Suatu virus menyebar melalui kontak. Satu orang terinfeksi akan menularkan ke 3 orang baru setiap harinya. Jika hari pertama ada 1 orang terinfeksi, banyak orang *baru* yang terinfeksi pada hari ke-5 adalah?", options: ["27", "81", "243", "729"], ans: 1, hint: "Barisan orang *baru*: H1=1(anggap awal), H2=3, H3=9, H4=27, H5=81. Ini adalah U5 dari a=1, r=3." },
+            
+            // Tambahan Soal
+            { q: "Manakah dari berikut ini yang merupakan barisan geometri?", options: ["2, 4, 6, 8", "1, 4, 9, 16", "3, -6, 12, -24", "1, 2, 3, 5, 8"], ans: 2, hint: "Cari barisan yang memiliki rasio perkalian yang konstan. 3 * -2 = -6. -6 * -2 = 12." },
+            { q: "Jika barisan geometri memiliki rasio negatif, maka tanda bilangannya akan...", options: ["Selalu positif", "Selalu negatif", "Bergantian (positif, negatif)", "Menjadi nol"], ans: 2, hint: "Misal r = -2, maka a=1 menjadi 1, -2, 4, -8." },
+            { q: "Pada barisan 81, 27, 9, 3, ... Suku ke-6 adalah?", options: ["1/3", "1/9", "1", "-3"], ans: 0, hint: "Rasionya adalah 1/3. U5 = 1, U6 = 1 * (1/3)." },
+            { q: "Nilai x agar (x-2), (x-1), (x+1) membentuk barisan geometri adalah?", options: ["1", "2", "3", "4"], ans: 2, hint: "Syarat: (x-1)/(x-2) = (x+1)/(x-1). (x-1)^2 = (x-2)(x+1) -> x^2 - 2x + 1 = x^2 - x - 2 -> -x = -3 -> x=3." },
+            { q: "Berapa banyak suku pada barisan geometri 2, 4, 8, ..., 128?", options: ["6", "7", "8", "9"], ans: 1, hint: "2^n = 128 (karena bentuknya 2^1, 2^2..). 2^7 = 128." },
+            { q: "Suku ke-2 = 10, Suku ke-5 = 1250. Suku pertama adalah?", options: ["1", "2", "5", "10"], ans: 1, hint: "U5/U2 = r^3 = 1250/10 = 125. r=5. U2 = a*r -> 10 = a*5, a=2." },
+            { q: "[HOTS] Sebuah bola dijatuhkan dari ketinggian 10 meter dan selalu memantul 1/2 dari ketinggian sebelumnya. Tinggi bola pada pantulan ke-4 adalah?", options: ["1.25 m", "0.625 m", "0.3125 m", "2.5 m"], ans: 1, hint: "Pantulan 1: 5m, Pantulan 2: 2.5m, Pantulan 3: 1.25m, Pantulan 4: 0.625m." },
+            { q: "Batas deret geometri konvergen (agar bisa dijumlahkan hingga tak hingga) adalah rasio r berada di antara?", options: ["r > 1", "r < -1", "-1 < r < 1", "r = 1"], ans: 2, hint: "Rasio harus berupa pecahan murni agar nilainya menuju nol." },
+            { q: "Bentuk sederhana dari 2^3 * 2^5 / 2^4 adalah...", options: ["2^3", "2^4", "2^5", "2^8"], ans: 1, hint: "Sifat eksponen sangat penting di barisan geometri. 2^(3+5-4) = 2^4." },
+            { q: "Jika rumus suku ke-n adalah Un = 3 * 2^(n-1), maka barisan tersebut adalah...", options: ["3, 6, 9, 12", "3, 6, 12, 24", "2, 6, 18, 54", "3, 5, 7, 9"], ans: 1, hint: "Masukkan n=1 (hasil 3), n=2 (hasil 6), n=3 (hasil 12)." }
+        ];
+
+        /* ======================
+           STATE & UTILITIES
+        ====================== */
+        const AppState = {
+            user: {
+                name: '',
+                latihanScore: 0,
+                evaluasiScore: 0,
+                certUnlocked: false
+            },
+            theme: 'light',
+            currentView: 'beranda'
+        };
+
+        const AudioEngine = {
+            play: function(type) {
+                try {
+                    // Mengubah ekstensi dari .mp3 menjadi .mpeg sesuai format file Anda
+                    const audio = new Audio(`assets/sounds/${type}.mpeg`);
+                    // Menangkap error jika file tidak ditemukan agar aplikasi tidak crash
+                    audio.play().catch(e => console.warn("Audio tidak diputar (file mungkin tidak ada):", e));
+                } catch(err) {}
+            }
+        };
+
+        /* ======================
+           BACKGROUND ENGINE
+        ====================== */
+        const BgEngine = {
+            canvas: null,
+            ctx: null,
+            particles: [],
+            mouse: { x: null, y: null, radius: 120 },
+            colors: {
+                // Light mode: Background pink sangat muda, partikel pink cerah
+                light: { bg: '#fdf2f8', dot: 'rgba(219, 39, 119, 0.4)', line: 'rgba(219, 39, 119, 0.2)' },
+                // Dark mode: Background dark plum/magenta, partikel pink menyala
+                dark: { bg: '#2e1025', dot: 'rgba(244, 114, 182, 0.5)', line: 'rgba(244, 114, 182, 0.2)' }
+            },
+            init: function() {
+                this.canvas = document.createElement('canvas');
+                this.canvas.id = 'interactive-bg';
+                this.canvas.style.position = 'fixed';
+                this.canvas.style.top = '0';
+                this.canvas.style.left = '0';
+                this.canvas.style.width = '100vw';
+                this.canvas.style.height = '100vh';
+                this.canvas.style.zIndex = '-1';
+                document.body.prepend(this.canvas);
+                
+                this.ctx = this.canvas.getContext('2d');
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                
+                window.addEventListener('mousemove', (e) => {
+                    this.mouse.x = e.clientX;
+                    this.mouse.y = e.clientY;
+                });
+                window.addEventListener('mouseout', () => {
+                    this.mouse.x = null;
+                    this.mouse.y = null;
+                });
+
+                this.createParticles();
+                this.animate();
+            },
+            resize: function() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                this.createParticles(); 
+            },
+            createParticles: function() {
+                this.particles = [];
+                // Dinamis menyesuaikan kepadatan dengan ukuran layar
+                let num = Math.floor((window.innerWidth * window.innerHeight) / 12000); 
+                for(let i = 0; i < num; i++) {
+                    this.particles.push({
+                        x: Math.random() * window.innerWidth,
+                        y: Math.random() * window.innerHeight,
+                        vx: (Math.random() - 0.5) * 1.0,
+                        vy: (Math.random() - 0.5) * 1.0,
+                        size: Math.random() * 2.5 + 1
+                    });
+                }
+            },
+            animate: function() {
+                requestAnimationFrame(() => this.animate());
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Ambil tema saat ini dari AppState
+                const theme = AppState.theme;
+                const c = this.colors[theme];
+                
+                // Gambar Warna Dasar (Otomatis berubah mengikuti Dark Mode / Light Mode)
+                this.ctx.fillStyle = c.bg;
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                for(let i = 0; i < this.particles.length; i++) {
+                    let p = this.particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    // Memantul saat menyentuh tepi layar
+                    if(p.x < 0 || p.x > this.canvas.width) p.vx = -p.vx;
+                    if(p.y < 0 || p.y > this.canvas.height) p.vy = -p.vy;
+
+                    // Interaksi Mouse (Partikel menghindar halus)
+                    if (this.mouse.x != null) {
+                        let dx = this.mouse.x - p.x;
+                        let dy = this.mouse.y - p.y;
+                        let dist = Math.sqrt(dx*dx + dy*dy);
+                        if(dist < this.mouse.radius) {
+                            p.x -= dx * 0.02;
+                            p.y -= dy * 0.02;
+                        }
+                    }
+
+                    // Gambar titik partikel
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    this.ctx.fillStyle = c.dot;
+                    this.ctx.fill();
+
+                    // Gambar garis penghubung antar partikel yang berdekatan
+                    for(let j = i; j < this.particles.length; j++) {
+                        let p2 = this.particles[j];
+                        let dx = p.x - p2.x;
+                        let dy = p.y - p2.y;
+                        let dist = Math.sqrt(dx*dx + dy*dy);
+                        
+                        if(dist < 110) {
+                            this.ctx.beginPath();
+                            this.ctx.strokeStyle = c.line;
+                            this.ctx.lineWidth = 1 - (dist/110);
+                            this.ctx.moveTo(p.x, p.y);
+                            this.ctx.lineTo(p2.x, p2.y);
+                            this.ctx.stroke();
+                        }
+                    }
+                }
+            }
+        };
+
+        const Utils = {
+            formatNumber: (num) => parseFloat(num.toFixed(4)),
+            shuffleArray: (array) => {
+                let curId = array.length, temp, top;
+                while (curId !== 0) {
+                    top = Math.floor(Math.random() * curId);
+                    curId -= 1;
+                    temp = array[curId];
+                    array[curId] = array[top];
+                    array[top] = temp;
+                }
+                return array;
+            },
+            showToast: (msg, type = 'success') => {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.innerHTML = type === 'success' ? `✅ ${msg}` : `❌ ${msg}`;
+                container.appendChild(toast);
+                setTimeout(() => {
+                    toast.classList.add('fadeOut');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+        };
+
+        /* ======================
+           CORE APPLICATION
+        ====================== */
+        const app = {
+            init: function() {
+                BgEngine.init(); // Jalankan animasi background saat aplikasi mulai
+                this.loadData();
+                this.bindEvents();
+                this.updateThemeUI();
+                
+                // Initialize modules
+                this.simulator.init();
+                
+                // Set initial view
+                if(AppState.user.name !== '') {
+                    document.getElementById('login-section').style.display = 'none';
+                    document.getElementById('welcome-back-section').style.display = 'block';
+                    document.getElementById('user-greeting').innerText = `Halo, ${AppState.user.name}`;
+                    document.getElementById('user-greeting').style.display = 'block';
+                    this.checkCertificate();
+                }
+
+                document.getElementById('current-year').textContent = new Date().getFullYear();
+                
+                // Animasi ripple di tombol
+                document.querySelectorAll('.btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        let rect = e.target.getBoundingClientRect();
+                        let x = e.clientX - rect.left;
+                        let y = e.clientY - rect.top;
+                        let ripple = document.createElement('span');
+                        ripple.className = 'ripple';
+                        ripple.style.left = `${x}px`;
+                        ripple.style.top = `${y}px`;
+                        this.appendChild(ripple);
+                        setTimeout(() => ripple.remove(), 600);
+                    });
+                });
+            },
+
+            loadData: function() {
+                const data = localStorage.getItem('labMayaData');
+                if (data) {
+                    const parsed = JSON.parse(data);
+                    AppState.user = parsed.user;
+                    AppState.theme = parsed.theme || 'light';
+                    document.documentElement.setAttribute('data-theme', AppState.theme);
+                }
+            },
+
+            saveData: function() {
+                localStorage.setItem('labMayaData', JSON.stringify(AppState));
+            },
+
+            bindEvents: function() {
+                // Navigasi Sidebar
+                document.querySelectorAll('.menu-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        const target = item.getAttribute('data-target');
+                        this.navigate(target);
+                        // Close sidebar on mobile
+                        if (window.innerWidth <= 768) this.toggleSidebar(false);
+                    });
+                });
+
+                // Tombol Menu Mobile
+                document.getElementById('btn-menu').addEventListener('click', () => this.toggleSidebar(true));
+                document.getElementById('overlay').addEventListener('click', () => this.toggleSidebar(false));
+
+                // Tema
+                document.getElementById('btn-theme').addEventListener('click', () => {
+                    AppState.theme = AppState.theme === 'light' ? 'dark' : 'light';
+                    document.documentElement.setAttribute('data-theme', AppState.theme);
+                    this.updateThemeUI();
+                    this.saveData();
+                    // Redraw canvas if in lab view
+                    if(AppState.currentView === 'lab') this.simulator.drawGraph();
+                });
+
+                // Login / Start
+                document.getElementById('btn-start').addEventListener('click', () => {
+                    const name = document.getElementById('student-name').value.trim();
+                    if(name.length < 2) {
+                        Utils.showToast('Masukkan nama yang valid (min 2 huruf)', 'error');
+                        return;
+                    }
+                    AppState.user.name = name;
+                    this.saveData();
+                    Utils.showToast(`Selamat datang, ${name}!`);
+                    this.navigate('materi');
+                    
+                    document.getElementById('user-greeting').innerText = `Halo, ${name}`;
+                    document.getElementById('user-greeting').style.display = 'block';
+                    document.getElementById('login-section').style.display = 'none';
+                    document.getElementById('welcome-back-section').style.display = 'block';
+                });
+
+                // Reset Data
+                document.getElementById('btn-reset').addEventListener('click', () => {
+                    if(confirm("Yakin ingin mereset seluruh progress belajarmu?")) {
+                        localStorage.removeItem('labMayaData');
+                        location.reload();
+                    }
+                });
+
+                // Tutor AI
+                document.getElementById('btn-tutor').addEventListener('click', () => {
+                    const panel = document.getElementById('tutor-panel');
+                    panel.classList.toggle('active');
+                    if(panel.classList.contains('active')) {
+                        this.aiTutor.generateContextMsg();
+                    }
+                });
+                document.getElementById('btn-close-tutor').addEventListener('click', () => {
+                    document.getElementById('tutor-panel').classList.remove('active');
+                });
+            },
+
+            navigate: function(viewId) {
+                // Update menu aktif
+                document.querySelectorAll('.menu-item').forEach(item => {
+                    item.classList.remove('active');
+                    if(item.getAttribute('data-target') === viewId) item.classList.add('active');
+                });
+
+                // Sembunyikan semua view
+                document.querySelectorAll('.view-section').forEach(view => {
+                    view.classList.remove('active');
+                });
+
+                // Tampilkan view target
+                document.getElementById(`view-${viewId}`).classList.add('active');
+                AppState.currentView = viewId;
+
+                // Update Judul Header
+                const titles = {
+                    beranda: 'Beranda', materi: 'Materi Pembelajaran', lab: 'Lab Maya & Visualisasi',
+                    eksplorasi: 'Eksplorasi Konsep', latihan: 'Latihan Soal', game: 'Game: Escape Lab',
+                    evaluasi: 'Evaluasi Akhir', sertifikat: 'Sertifikat Penghargaan', tentang: 'Tentang Aplikasi', profil: 'Profil Pengembang'
+                };
+                document.getElementById('page-title').innerText = titles[viewId] || 'Lab Maya';
+
+                // Specific triggers
+                if (viewId === 'lab') {
+                    // Beri jeda sedikit agar layout selesai render sblm draw canvas
+                    setTimeout(() => this.simulator.drawGraph(), 100);
+                } else if (viewId === 'sertifikat') {
+                    this.checkCertificate();
+                } else if (viewId === 'game' && !this.gameEngine.initialized) {
+                    this.gameEngine.init();
+                }
+
+                // Scroll to top
+                window.scrollTo(0,0);
+                
+                // Hide AI Tutor on navigation
+                document.getElementById('tutor-panel').classList.remove('active');
+            },
+
+            toggleSidebar: function(show) {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('overlay');
+                if(show) {
+                    sidebar.classList.add('open');
+                    overlay.classList.add('active');
+                } else {
+                    sidebar.classList.remove('open');
+                    overlay.classList.remove('active');
+                }
+            },
+
+            updateThemeUI: function() {
+                const icon = document.getElementById('icon-sun');
+                if (AppState.theme === 'dark') {
+                    icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+                } else {
+                    icon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+                }
+            },
+
+            setEksperimen: function(a, r, n) {
+                document.getElementById('slider-a').value = a;
+                document.getElementById('slider-r').value = r;
+                document.getElementById('slider-n').value = n;
+                
+                this.simulator.updateAll();
+                
+                const resBox = document.getElementById('eksperimen-result');
+                const text = document.getElementById('eksperimen-text');
+                resBox.style.display = 'block';
+                
+                if (r < 1) text.innerText = "Karena rasio (r) kurang dari 1, nilai suku-suku barisan akan semakin mengecil. Ini disebut Barisan Konvergen.";
+                else if (r === 1) text.innerText = "Karena rasio (r) sama dengan 1, nilai suku-suku barisan tidak berubah. Ini disebut Barisan Stasioner.";
+                else text.innerText = "Karena rasio (r) lebih besar dari 1, nilai suku-suku barisan akan semakin membesar secara eksponensial. Ini disebut Barisan Divergen.";
+            },
+
+            checkCertificate: function() {
+                if (AppState.user.evaluasiScore >= 80) {
+                    AppState.user.certUnlocked = true;
+                    this.saveData();
+                }
+
+                if (AppState.user.certUnlocked) {
+                    document.getElementById('cert-locked').style.display = 'none';
+                    document.getElementById('cert-unlocked').style.display = 'block';
+                    
+                    document.getElementById('cert-student-name').innerText = AppState.user.name || 'Siswa Tanpa Nama';
+                    document.getElementById('cert-student-score').innerText = AppState.user.evaluasiScore;
+                    
+                    // Format date
+                    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                    document.getElementById('cert-date').innerText = new Date().toLocaleDateString('id-ID', options);
+                } else {
+                    document.getElementById('cert-locked').style.display = 'block';
+                    document.getElementById('cert-unlocked').style.display = 'none';
+                }
+            }
+        };
+
+        /* ======================
+           SIMULATOR LAB MAYA
+        ====================== */
+        app.simulator = {
+            a: 2, r: 3, n: 5,
+            init: function() {
+                const sA = document.getElementById('slider-a');
+                const sR = document.getElementById('slider-r');
+                const sN = document.getElementById('slider-n');
+
+                const updateFn = () => this.updateAll();
+                sA.addEventListener('input', updateFn);
+                sR.addEventListener('input', updateFn);
+                sN.addEventListener('input', updateFn);
+                
+                // Handle resize
+                window.addEventListener('resize', () => {
+                    if (AppState.currentView === 'lab') this.drawGraph();
+                });
+
+                this.updateAll();
+            },
+            
+            updateAll: function() {
+                this.a = parseFloat(document.getElementById('slider-a').value);
+                this.r = parseFloat(document.getElementById('slider-r').value);
+                this.n = parseInt(document.getElementById('slider-n').value);
+
+                // Update UI Labels
+                document.getElementById('val-a').innerText = this.a;
+                document.getElementById('val-r').innerText = this.r;
+                document.getElementById('val-n').innerText = this.n;
+
+                document.getElementById('info-a').innerText = this.a;
+                document.getElementById('info-r').innerText = this.r;
+                document.getElementById('info-n-idx').innerText = this.n;
+
+                // Hitung Un
+                const un = this.a * Math.pow(this.r, this.n - 1);
+                document.getElementById('info-un').innerText = Utils.formatNumber(un);
+
+                this.generateSequence();
+                this.drawGraph();
+            },
+
+            generateSequence: function() {
+                const container = document.getElementById('sequence-container');
+                container.innerHTML = '';
+                
+                let currentVal = this.a;
+                for (let i = 1; i <= this.n; i++) {
+                    const span = document.createElement('span');
+                    span.className = 'seq-term';
+                    span.innerText = Utils.formatNumber(currentVal);
+                    // Cascade animation delay
+                    span.style.animationDelay = `${i * 0.1}s`;
+                    container.appendChild(span);
+                    currentVal *= this.r;
+                    
+                    if (i < this.n && i < 15) { // Batasi icon panah agar tidak terlalu panjang
+                        const arrow = document.createElement('span');
+                        arrow.innerHTML = '&rarr;';
+                        arrow.style.color = 'var(--text-muted)';
+                        arrow.style.alignSelf = 'center';
+                        container.appendChild(arrow);
+                    }
+                    if (i === 15 && this.n > 15) {
+                        const dots = document.createElement('span');
+                        dots.innerText = '...';
+                        dots.style.alignSelf = 'center';
+                        container.appendChild(dots);
+                        break; // Jangan render di html jika > 15 agar rapi
+                    }
+                }
+            },
+
+            drawGraph: function() {
+                const canvas = document.getElementById('geoCanvas');
+                const ctx = canvas.getContext('2d');
+                const parent = canvas.parentElement;
+                
+                // Set resolusi asli canvas sesuai ukuran parent (untuk mengatasi blur)
+                canvas.width = parent.clientWidth;
+                canvas.height = parent.clientHeight;
+                
+                const w = canvas.width;
+                const h = canvas.height;
+                const padding = 40;
+
+                ctx.clearRect(0, 0, w, h);
+
+                // Generate points
+                let points = [];
+                let maxVal = 0;
+                let currentVal = this.a;
+
+                for (let i = 1; i <= this.n; i++) {
+                    points.push(currentVal);
+                    if (currentVal > maxVal) maxVal = currentVal;
+                    currentVal *= this.r;
+                }
+
+                // Grid and Axes colors based on theme
+                const axisColor = AppState.theme === 'dark' ? '#64748b' : '#94a3b8';
+                const gridColor = AppState.theme === 'dark' ? '#334155' : '#e2e8f0';
+                const textColor = AppState.theme === 'dark' ? '#cbd5e1' : '#64748b';
+                const lineColor = '#2563eb';
+                const pointColor = '#10b981';
+
+                // Calculate drawing area
+                const drawW = w - (padding * 2);
+                const drawH = h - (padding * 2);
+                
+                // Prevent division by zero
+                maxVal = maxVal === 0 ? 1 : maxVal;
+                const scaleY = drawH / maxVal;
+                const stepX = this.n > 1 ? drawW / (this.n - 1) : drawW;
+
+                // Draw Grid (Horizontal lines for Y axis)
+                ctx.beginPath();
+                ctx.strokeStyle = gridColor;
+                ctx.lineWidth = 1;
+                ctx.font = '12px ' + getComputedStyle(document.body).fontFamily;
+                ctx.fillStyle = textColor;
+                ctx.textAlign = 'right';
+                
+                const ySteps = 5;
+                for (let i = 0; i <= ySteps; i++) {
+                    const yVal = maxVal * (i / ySteps);
+                    const yPos = h - padding - (yVal * scaleY);
+                    
+                    ctx.moveTo(padding, yPos);
+                    ctx.lineTo(w - padding, yPos);
+                    ctx.fillText(Utils.formatNumber(yVal), padding - 10, yPos + 4);
+                }
+                ctx.stroke();
+
+                // Draw Axes
+                ctx.beginPath();
+                ctx.strokeStyle = axisColor;
+                ctx.lineWidth = 2;
+                ctx.moveTo(padding, padding);
+                ctx.lineTo(padding, h - padding); // Y axis
+                ctx.lineTo(w - padding, h - padding); // X axis
+                ctx.stroke();
+
+                // Draw X labels
+                ctx.textAlign = 'center';
+                for (let i = 0; i < this.n; i++) {
+                    const xPos = padding + (i * stepX);
+                    ctx.fillText(`U${i+1}`, xPos, h - padding + 20);
+                }
+
+                // Plot Line and Points
+                ctx.beginPath();
+                ctx.strokeStyle = lineColor;
+                ctx.lineWidth = 3;
+                
+                const coordinates = [];
+                for (let i = 0; i < this.n; i++) {
+                    const xPos = padding + (i * stepX);
+                    const yPos = h - padding - (points[i] * scaleY);
+                    coordinates.push({x: xPos, y: yPos});
+                    
+                    if (i === 0) ctx.moveTo(xPos, yPos);
+                    else ctx.lineTo(xPos, yPos);
+                }
+                ctx.stroke();
+
+                // Draw dots on top
+                ctx.fillStyle = pointColor;
+                coordinates.forEach(coord => {
+                    ctx.beginPath();
+                    ctx.arc(coord.x, coord.y, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                });
+            }
+        };
+
+        /* ======================
+           QUIZ ENGINE
+        ====================== */
+        app.quizEngine = {
+            mode: 'latihan', // 'latihan' or 'evaluasi'
+            questions: [],
+            currentIdx: 0,
+            score: 0,
+            correctCount: 0,
+            timer: null,
+            timeElapsed: 0,
+
+            start: function(mode) {
+                this.mode = mode;
+                this.currentIdx = 0;
+                this.score = 0;
+                this.correctCount = 0;
+                
+                // Setup Questions
+                let rawQuestions = JSON.parse(JSON.stringify(questionBank));
+                this.questions = Utils.shuffleArray(rawQuestions);
+                
+                if (mode === 'latihan') {
+                    this.questions = this.questions.slice(0, 10); // 10 soal untuk latihan
+                    document.getElementById('lat-result').style.display = 'none';
+                    document.getElementById('lat-question-container').style.display = 'block';
+                    document.getElementById('lat-total').innerText = this.questions.length;
+                    this.renderQuestion();
+                } else if (mode === 'evaluasi') {
+                    this.questions = this.questions.slice(0, 25); // 25 soal evaluasi
+                    document.getElementById('eval-intro').style.display = 'none';
+                    document.getElementById('eval-result').style.display = 'none';
+                    document.getElementById('eval-test').style.display = 'block';
+                    document.getElementById('eval-total').innerText = this.questions.length;
+                    
+                    this.timeElapsed = 0;
+                    this.startTimer();
+                    this.renderQuestion();
+                }
+            },
+
+            renderQuestion: function() {
+                const q = this.questions[this.currentIdx];
+                const prefix = this.mode === 'latihan' ? 'lat' : 'eval';
+                
+                document.getElementById(`${prefix}-current`).innerText = this.currentIdx + 1;
+                document.getElementById(`${prefix}-progress`).style.width = `${((this.currentIdx) / this.questions.length) * 100}%`;
+                
+                document.getElementById(`${prefix}-q-text`).innerText = q.q;
+                
+                const optsContainer = document.getElementById(`${prefix}-options-container`);
+                optsContainer.innerHTML = '';
+                
+                if (this.mode === 'latihan') {
+                    document.getElementById('lat-feedback').style.display = 'none';
+                }
+
+                q.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.innerText = `${String.fromCharCode(65 + idx)}. ${opt}`;
+                    btn.onclick = () => this.checkAnswer(idx, btn);
+                    optsContainer.appendChild(btn);
+                });
+            },
+
+            checkAnswer: function(selectedIdx, btnEl) {
+                const q = this.questions[this.currentIdx];
+                const prefix = this.mode === 'latihan' ? 'lat' : 'eval';
+                const optsContainer = document.getElementById(`${prefix}-options-container`);
+                
+                // Disable all buttons
+                optsContainer.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
+                
+                const isCorrect = selectedIdx === q.ans;
+                if (isCorrect) {
+                    this.correctCount++;
+                    AudioEngine.play('correct');
+                } else {
+                    AudioEngine.play('wrong');
+                }
+
+                if (this.mode === 'latihan') {
+                    // Beri feedback langsung
+                    if (isCorrect) {
+                        btnEl.classList.add('correct');
+                        document.getElementById('lat-feedback-title').innerText = "✅ Jawaban Benar!";
+                        document.getElementById('lat-feedback-title').style.color = "var(--success)";
+                    } else {
+                        btnEl.classList.add('wrong');
+                        // Highlight correct
+                        optsContainer.children[q.ans].classList.add('correct');
+                        document.getElementById('lat-feedback-title').innerText = "❌ Jawaban Salah!";
+                        document.getElementById('lat-feedback-title').style.color = "var(--danger)";
+                    }
+                    
+                    document.getElementById('lat-feedback-text').innerText = "Pembahasan: " + q.hint;
+                    document.getElementById('lat-feedback').style.display = 'block';
+                    
+                    document.getElementById('btn-lat-next').onclick = () => this.nextQuestion();
+                } else {
+                    // Evaluasi: langsung lanjut tanpa feedback
+                    btnEl.style.backgroundColor = 'var(--border-color)'; // Highlight selected
+                    setTimeout(() => this.nextQuestion(), 400);
+                }
+            },
+
+            nextQuestion: function() {
+                this.currentIdx++;
+                if (this.currentIdx < this.questions.length) {
+                    this.renderQuestion();
+                } else {
+                    this.finish();
+                }
+            },
+
+            startTimer: function() {
+                clearInterval(this.timer);
+                this.timer = setInterval(() => {
+                    this.timeElapsed++;
+                    const m = Math.floor(this.timeElapsed / 60).toString().padStart(2, '0');
+                    const s = (this.timeElapsed % 60).toString().padStart(2, '0');
+                    document.getElementById('eval-timer').innerText = `${m}:${s}`;
+                }, 1000);
+            },
+
+            finish: function() {
+                this.score = Math.round((this.correctCount / this.questions.length) * 100);
+                
+                if (this.mode === 'latihan') {
+                    document.getElementById('lat-question-container').style.display = 'none';
+                    document.getElementById('lat-feedback').style.display = 'none';
+                    document.getElementById('lat-result').style.display = 'block';
+                    document.getElementById('lat-score').innerText = this.score;
+                    document.getElementById('lat-progress').style.width = '100%';
+                    
+                    // Simpan progress
+                    if(this.score > AppState.user.latihanScore) AppState.user.latihanScore = this.score;
+                    app.saveData();
+
+                } else {
+                    clearInterval(this.timer);
+                    document.getElementById('eval-test').style.display = 'none';
+                    document.getElementById('eval-result').style.display = 'block';
+                    document.getElementById('eval-score').innerText = this.score;
+                    
+                    let msg = "";
+                    const btnKlaim = document.getElementById('btn-klaim-sertifikat');
+                    if (this.score >= 80) {
+                        msg = "Luar biasa! Anda telah menguasai materi ini.";
+                        document.getElementById('eval-score').style.color = "var(--success)";
+                        btnKlaim.style.display = "inline-block";
+                    } else {
+                        msg = "Masih perlu banyak latihan. Silakan pelajari kembali materi dan ulangi evaluasi.";
+                        document.getElementById('eval-score').style.color = "var(--danger)";
+                        btnKlaim.style.display = "none";
+                    }
+                    document.getElementById('eval-message').innerText = msg;
+
+                    // Simpan score
+                    if(this.score > AppState.user.evaluasiScore) {
+                        AppState.user.evaluasiScore = this.score;
+                        app.saveData();
+                        app.checkCertificate();
+                    }
+                }
+            }
+        };
+
+        /* ======================
+           GAME ENGINE
+        ====================== */
+        app.gameEngine = {
+            initialized: false,
+            level: 1,
+            score: 0,
+            streakInLevel: 0,
+            maxLevels: 5,
+            
+            init: function() {
+                this.initialized = true;
+                this.level = 1;
+                this.score = 0;
+                this.streakInLevel = 0;
+                document.getElementById('game-over-screen').style.display = 'none';
+                document.getElementById('game-door').classList.remove('open');
+                this.startLevel();
+            },
+
+            startLevel: function() {
+                this.streakInLevel = 0;
+                document.getElementById('game-door').classList.remove('open');
+                document.getElementById('game-win').style.display = 'none';
+                document.getElementById('game-q-container').style.display = 'block';
+                this.updateHUD();
+                this.generateQuestion();
+            },
+
+            updateHUD: function() {
+                document.getElementById('game-level').innerText = this.level;
+                document.getElementById('game-score').innerText = this.score;
+            },
+
+            generateQuestion: function() {
+                // Generate simple math question based on level
+                let a, r, n, ans, text;
+                const opts = [];
+                
+                if (this.level === 1) { // Cari suku berikutnya
+                    a = Math.floor(Math.random() * 5) + 1;
+                    r = Math.floor(Math.random() * 3) + 2;
+                    text = `Apa suku selanjutnya dari ${a}, ${a*r}, ${a*r*r}, ...?`;
+                    ans = a*r*r*r;
+                } else if (this.level === 2) { // Cari rasio
+                    a = Math.floor(Math.random() * 10) + 2;
+                    r = Math.floor(Math.random() * 4) + 2;
+                    text = `Berapa rasio dari barisan ${a}, ${a*r}, ${a*r*r}?`;
+                    ans = r;
+                } else if (this.level === 3) { // Rasio pecahan
+                    a = [16, 32, 64, 128][Math.floor(Math.random()*4)];
+                    r = 0.5;
+                    text = `Berapa rasio dari barisan ${a}, ${a*r}, ${a*r*r}?`;
+                    ans = r;
+                } else if (this.level >= 4) { // U_n rumus
+                    a = Math.floor(Math.random() * 3) + 2;
+                    r = Math.floor(Math.random() * 2) + 2;
+                    n = 4;
+                    text = `Jika a=${a} dan r=${r}, berapakah U${n}?`;
+                    ans = a * Math.pow(r, n-1);
+                }
+
+                document.getElementById('game-q-text').innerText = text;
+                
+                // Generate wrong options
+                opts.push(ans);
+                while(opts.length < 4) {
+                    let wrong = ans + (Math.floor(Math.random() * 10) - 5) * (Math.floor(Math.random() * 3) + 1);
+                    if(wrong !== ans && !opts.includes(wrong) && wrong > 0) opts.push(wrong);
+                }
+                Utils.shuffleArray(opts);
+
+                const container = document.getElementById('game-options');
+                container.innerHTML = '';
+                opts.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'btn btn-outline';
+                    btn.style.color = '#fff';
+                    btn.style.borderColor = '#475569';
+                    btn.innerText = opt;
+                    btn.onclick = () => this.checkAnswer(opt, ans);
+                    container.appendChild(btn);
+                });
+            },
+
+            checkAnswer: function(selected, correct) {
+                if (selected === correct) {
+                    this.streakInLevel++;
+                    this.score += 10 * this.level;
+                    Utils.showToast("Benar! +Score");
+                    AudioEngine.play('correct'); // Putar suara benar
+                    
+                    if (this.streakInLevel >= 3) {
+                        this.winLevel();
+                    } else {
+                        this.generateQuestion();
+                    }
+                } else {
+                    this.score = Math.max(0, this.score - 5);
+                    Utils.showToast("Salah! Coba lagi.", "error");
+                    AudioEngine.play('wrong'); // Putar suara salah
+                    // Petunjuk kecil
+                    app.aiTutor.forceMsg("Fokus! Ingat perkalian konstan (rasio).");
+                }
+                this.updateHUD();
+            },
+
+            winLevel: function() {
+                document.getElementById('game-q-container').style.display = 'none';
+                document.getElementById('game-door').classList.add('open');
+                AudioEngine.play('win'); // Putar suara menang
+                
+                setTimeout(() => {
+                    if (this.level >= this.maxLevels) {
+                        document.getElementById('game-over-screen').style.display = 'block';
+                    } else {
+                        document.getElementById('game-win').style.display = 'block';
+                    }
+                }, 1500); // Wait for door animation
+            },
+
+            nextLevel: function() {
+                this.level++;
+                this.startLevel();
+            }
+        };
+
+        /* ======================
+           AI TUTOR ENGINE
+        ====================== */
+        app.aiTutor = {
+            chatContainer: null,
+            init: function() {
+                this.chatContainer = document.getElementById('tutor-chat');
+            },
+            
+            forceMsg: function(msg) {
+                const panel = document.getElementById('tutor-panel');
+                if(!panel.classList.contains('active')) panel.classList.add('active');
+                this.addMsg(msg);
+            },
+
+            addMsg: function(text) {
+                if(!this.chatContainer) this.chatContainer = document.getElementById('tutor-chat');
+                const div = document.createElement('div');
+                div.className = 'tutor-msg';
+                div.style.animation = 'slideInRight 0.3s ease';
+                div.innerHTML = text;
+                this.chatContainer.appendChild(div);
+                this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
+            },
+
+            generateContextMsg: function() {
+                const view = AppState.currentView;
+                let msg = "";
+                
+                switch(view) {
+                    case 'beranda': msg = "Halo! Silakan mulai dari menu Materi untuk memahami dasar Barisan Geometri."; break;
+                    case 'materi': msg = "Ingat: <b>r = U2 / U1</b>. Ini adalah kunci membedakan barisan geometri dengan aritmatika."; break;
+                    case 'lab': msg = "Coba ubah rasio menjadi kurang dari 1, perhatikan grafiknya melengkung ke bawah (menurun)!"; break;
+                    case 'latihan': msg = "Jangan terburu-buru. Coret-coret di kertas jika perlu. Kamu pasti bisa!"; break;
+                    case 'evaluasi': msg = "Fokus! Ini menentukan apakah kamu mendapat sertifikat atau tidak. Cek kembali hitungan pangkatnya."; break;
+                    case 'game': msg = "Di ruangan ini kamu harus cepat dan tepat! Analisa polanya."; break;
+                    default: msg = "Ada kesulitan? Eksplorasi tiap menu pelan-pelan ya.";
+                }
+                
+                this.addMsg(msg);
+            }
+        };
+
+        // Jalankan saat DOM siap
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+            app.aiTutor.init();
+        });
+
+    </script>
+</body>
+</html>
